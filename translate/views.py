@@ -1,4 +1,5 @@
-from django.http import HttpRequest, JsonResponse
+from django.http import HttpRequest, JsonResponse, HttpResponse
+from django.shortcuts import render
 from langchain_openai import ChatOpenAI
 from langchain_community.llms.ollama import Ollama
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -6,7 +7,7 @@ from langchain.prompts.chat import ChatPromptTemplate
 from app import settings
 import re
 
-def translate(request: HttpRequest):
+def show(request: HttpRequest) -> JsonResponse:
     if 'text' not in request.GET.keys():
         return JsonResponse({
             'data': None,
@@ -64,7 +65,7 @@ def translate(request: HttpRequest):
         result = chat_model.invoke(messages)
 
         return JsonResponse({
-            'data': result.content,
+            'data': result if type(result) == str else result.content,
             'message': 'Translation complete.',
             'success': True,
         })
@@ -74,4 +75,7 @@ def translate(request: HttpRequest):
             'message': 'Translation unsuccessful. Please try again later.',
             'success': False,
         })
+
+def index(request: HttpRequest) -> HttpResponse:
+    return render(request, 'index.html')
 
