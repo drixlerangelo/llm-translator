@@ -29,7 +29,9 @@ SECRET_KEY = os.environ['APP_KEY']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ['APP_DEBUG'] == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    os.environ['VIRTUAL_HOST']
+]
 
 
 # Application definition

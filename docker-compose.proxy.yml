@@ -1,0 +1,18 @@
+services:
+    app:
+        container_name: translator
+        build:
+            context: .
+            dockerfile: Dockerfile
+        volumes:
+            - './:/app'
+        restart: always
+        environment:
+            - VIRTUAL_HOST=${APP_HOST}
+        networks:
+            - proxy
+networks:
+    proxy:
+        driver: overlay
+        external: true
+
