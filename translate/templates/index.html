@@ -74,12 +74,31 @@
                 Translate
                 </button>
             </div>
+            <div class="text-right space-y-0 text-sm text-rose-500" id="errorMsg"></div>
         </div>
     </div>
     <script>
         const submitBtn = document.getElementById('translateBtn');
         const textInput = document.getElementById('translateText');
         const loaderDiv = document.getElementById('placeholder');
+        const errorDiv = document.getElementById('errorMsg');
+
+        function checkForError() {
+            let text = textInput.value || '';
+
+            if (text.length < 1) {
+                toggleError(true, 'The text field is required.');
+                textInput.classList.add(...['border-2', 'border-rose-500']);
+                textInput.classList.remove(...['border-none', 'focus:ring-white']);
+                return true;
+            }
+
+            toggleError(false);
+            textInput.classList.add(...['border-none', 'focus:ring-white']);
+            textInput.classList.remove(...['border-2', 'border-rose-500']);
+
+            return false;
+        }
 
         function toggleIsProcessing(enabled) {
             if (enabled === false) {
@@ -105,15 +124,24 @@
             loaderDiv.classList.remove('hidden');
         }
 
+        function toggleError(enabled, message = '') {
+            errorDiv.innerHTML = (enabled) ? message : '';
+        }
+
         async function translate() {
-            let text = textInput.value;
+            let text = textInput.value || '';
             const params = new URLSearchParams();
+
+            if (checkForError()) {
+                return;
+            }
 
             params.set('text', text);
             params.set('sl', 'en');
             params.set('tl', 'fr');
 
             toggleIsProcessing(true);
+            toggleError(false);
 
             let response = await fetch('/translate/?' + params.toString(), {
                 method: 'GET',
@@ -123,8 +151,13 @@
             });
 
             let data = await response.json();
-            data = data.data;
-            textInput.value = data;
+            if (data.detail) {
+                toggleError(true, data.detail);
+            } else {
+                data = data.data;
+                textInput.value = data;
+            }
+
             toggleIsProcessing(false);
         }
 
@@ -134,6 +167,8 @@
                 event.preventDefault();
                 translate();
             }
+
+            checkForError();
         };
     </script>
 </body>

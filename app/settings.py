@@ -27,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ['APP_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ['APP_DEBUG'] == 'True'
+DEBUG = os.environ['APP_DEBUG'] == '1'
 
 ALLOWED_HOSTS = [
     os.environ['VIRTUAL_HOST']
@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     'translate',
 ]
 
@@ -138,3 +139,12 @@ LLM_KEY = os.getenv('LLM_API_KEY')
 LLM_NAME = os.getenv('LLM_MODEL_NAME')
 LLM_URL = os.getenv('LLM_API_BASE')
 LLM_TYPE = os.getenv('LLM_TYPE')
+
+REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '2/minute',
+    },
+}

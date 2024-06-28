@@ -4,9 +4,11 @@ from langchain_openai import ChatOpenAI
 from langchain_community.llms.ollama import Ollama
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.prompts.chat import ChatPromptTemplate
+from rest_framework.decorators import api_view
 from app import settings
 import re
 
+@api_view(['GET'])
 def show(request: HttpRequest) -> JsonResponse:
     if 'text' not in request.GET.keys():
         return JsonResponse({
