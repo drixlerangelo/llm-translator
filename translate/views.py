@@ -76,7 +76,7 @@ def show(request: HttpRequest) -> JsonResponse:
             'data': None,
             'message': 'Translation unsuccessful. Please try again later.',
             'success': False,
-        })
+        }, status=503)
 
 def index(request: HttpRequest) -> HttpResponse:
     return render(request, 'index.html')

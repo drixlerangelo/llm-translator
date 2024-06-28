@@ -28,6 +28,7 @@
                 class="flex min-h-[80px] border border-input ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 h-[300px] w-full rounded-xl border-none bg-white/10 p-6 text-lg text-white placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 dark:bg-gray-900/10 dark:text-gray-100"
                 id="translateText"
                 placeholder="Enter text to translate... (You can press Alt + Enter to submit)"
+                maxlength="1000"
                 ></textarea>
 
                 <div id="placeholder" class="animate-pulse flex min-h-[80px] h-[300px] space-x-4 hidden">
@@ -93,6 +94,13 @@
                 return true;
             }
 
+            if (text.length > 1000) {
+                toggleError(true, 'The text is too many.');
+                textInput.classList.add(...['border-2', 'border-rose-500']);
+                textInput.classList.remove(...['border-none', 'focus:ring-white']);
+                return true;
+            }
+
             toggleError(false);
             textInput.classList.add(...['border-none', 'focus:ring-white']);
             textInput.classList.remove(...['border-2', 'border-rose-500']);
@@ -143,22 +151,27 @@
             toggleIsProcessing(true);
             toggleError(false);
 
-            let response = await fetch('/translate/?' + params.toString(), {
+            fetch('/translate/?' + params.toString(), {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json',
                 }
-            });
+            }).then(async response => {
+                if (response.ok === false) {
+                    response.text().then(text => {
+                        let data = JSON.parse(text);
+                        toggleError(true, data.message || data.detail);
+                        toggleIsProcessing(false);
+                    });
+                    return;
+                }
 
-            let data = await response.json();
-            if (data.detail) {
-                toggleError(true, data.detail);
-            } else {
+                let data = await response.json();
                 data = data.data;
                 textInput.value = data;
-            }
-
-            toggleIsProcessing(false);
+                toggleIsProcessing(false);
+                return;
+            });
         }
 
         submitBtn.onclick = translate;
